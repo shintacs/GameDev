@@ -7,4 +7,14 @@ public class GameSystem : Monobehaviour
     {
         SceneManager.LoadScene("MainScene");
     }
+    
+    public void Retry()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    }
+    
+    public void ReturnHome()
+    {
+        SceneManager.LoadScene("StartScene");
+    }
 }
