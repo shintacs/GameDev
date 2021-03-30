@@ -1,17 +1,17 @@
-﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class BarControl : MonoBehaviour
 {
     private Plane table;
     private Transform bar;
+    private float xpos;
     private bool drag = false;
 
     void Start()
     {
         var ppos = new Vector3(0, 0.15f, 0);
         table = new Plane(Vector3.up, ppos);
+        xpos = 0.01f;
     }
 
     void Update()
@@ -51,7 +51,17 @@ public class BarControl : MonoBehaviour
         float rayDistance;
         table.Raycast(ray, out rayDistance);
 
-        transform.position = new Vector3(ray.GetPoint(rayDistance).x, 0.15f, -4.5f);
-        //transform.position = ray.GetPoint(rayDistance);
+        xpos = ray.GetPoint(rayDistance).x; //レイの指す場所のx座標を取得
+
+        if (xpos <= -3.9f)  //ステージ左端にぶつかった場合
+        {
+            xpos = -3.9f;
+        }
+        else if(xpos >= 3.6f)   //ステージ右端にぶつかった場合
+        {
+            xpos = 3.6f;
+        }
+
+        transform.position = new Vector3(xpos, 0.15f, -4.5f);
     }
 }
