@@ -7,10 +7,16 @@ public class UIManager : MonoBehaviour
     [SerializeField] GameObject Panel;
     [SerializeField] GameObject GameOverText;
     [SerializeField] GameObject GameClearText;
+
     BlocksManager blocksmanager;
     EndWallScript endwallscript;
+
     private bool gameclear;
+    //private bool death;
     private bool gameover;
+
+    private int death_cnt;
+    //private int life;
 
     void Start()
     {
@@ -21,6 +27,9 @@ public class UIManager : MonoBehaviour
         blocksmanager = GameObject.Find("Blocks").GetComponent<BlocksManager>();
         endwallscript = GameObject.Find("GameEndWall").GetComponent<EndWallScript>();
 
+        //gameover = false;
+        //life = 3;
+
         ResetUI();
     }
 
@@ -28,11 +37,26 @@ public class UIManager : MonoBehaviour
     {
         gameclear = blocksmanager.deleteBlock;
         gameover = endwallscript.hitBall;
+        //death = endwallscript.hitBall;
+        death_cnt = endwallscript.hitball_cnt;
+
+        print(death_cnt);
 
         if (gameclear)
         {
             Return2Home();
         }
+
+        /*if (death)
+        {
+            life = 3 - death_cnt;
+            print(life);
+        }
+
+        if (life == 0)
+        {
+            RetryGame();
+        }*/
 
         if (gameover)
         {
@@ -52,7 +76,6 @@ public class UIManager : MonoBehaviour
         Panel.SetActive(true);
         GameOverText.SetActive(true);
         gameclear = false;
-
     }
 
     public void Return2Home()
