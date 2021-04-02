@@ -1,24 +1,30 @@
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
-public class ItemManager : MonoBehaviour
+public class BlockScript : MonoBehaviour
 {
-    //[SerializeField]
-    GameObject Star;
-    BlockScript blockscript;
+    [SerializeField]
+    public bool item_star;
 
-    void Start()
+    private void Start()
     {
-        Star = GameObject.FindWithTag("Star");
-        blockscript = GameObject.Find("Block_star").GetComponent<BlockScript>();
-        Star.SetActive(false);
+        item_star = false;
     }
 
-    void Update()
+    void OnCollisionEnter(Collision collision)
     {
-        if (blockscript.item_star)
+        if (gameObject.name == "Block_star")
         {
-            Star.SetActive(true);
-            Star.transform.Translate(0f, 0f, -0.02f);
+            item_star = true;
         }
+
+        DestroyBlock();
+
     }
+
+    private void DestroyBlock()
+    {
+        Destroy(gameObject);
+;    }
 }
