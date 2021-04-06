@@ -14,6 +14,7 @@ public class EndWallScript : MonoBehaviour
     {
         hitBall = true;
         hitball_cnt += 1;
+        ballscript.Reset();
         Destroy(collision.gameObject);
     }
 }
