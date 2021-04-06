@@ -72,4 +72,10 @@ public class BallScript : MonoBehaviour
             audioSource.PlayOneShot(delete_sound);
         }
     }
+    
+    public void Reset()
+    {
+        Instantiate(gameObject, new Vector3(0f,0.15f,-4.0f),Quaternion.identity);
+        start = false;
+    }
 }
