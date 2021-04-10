@@ -64,4 +64,12 @@ public class BarControl : MonoBehaviour
 
         transform.position = new Vector3(xpos, 0.15f, -4.5f);
     }
+    
+    public void OnTriggerEnter(Collider other)
+    {
+        if(other.gameObject.tag == "Star")
+        {
+            print("hit");
+        }
+    }
 }
