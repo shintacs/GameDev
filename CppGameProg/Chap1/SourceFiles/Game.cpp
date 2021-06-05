@@ -41,6 +41,12 @@ bool Game::Initialize()
 		-1,			//通常は-1 グラフィックスドライバーの指定
 		SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC
 	);
+
+	mPaddlePos.x = 100.0f;
+	mPaddlePos.y = 768.0f / 2.0f;
+	mBallPos.x = 1024.0f / 2.0f;
+	mBallPos.y = 768.0f / 2.0f;
+
 }
 
 void Game::Shutdown()
@@ -97,4 +103,36 @@ void Game::GenerateOutput()
 	SDL_RenderClear(mRenderer);
 	//フロントバッファとバックバッファの交換
 	SDL_RenderPresent(mRenderer);
+
+	//描画色を白に変える
+	SDL_SetRenderDrawColor(mRenderer, 255, 255, 255, 255);
+
+	const int thickness = 15;	//壁の厚み
+
+	//長方形の壁を描く
+	SDL_Rect wall{
+		0,			//左上隅のX
+		0,			//左上隅のy
+		1024,		//幅(あまり固定の大きさに決めるのは良くない)
+		thickness	//高さ
+	};
+
+	//長方形を描く
+	SDL_RenderFillRect(mRenderer, &wall);
+
+	//ボールの描写。SDL_Rectは左上の座標で定義する
+	SDL_Rect ball{
+		static_cast<int>(mBallPos.x - thickness / 2),
+		static_cast<int>(mBallPos.y - thickness / 2),
+		thickness,
+		thickness
+	};
+
+	//パドルを描く
+	SDL_Rect paddle{
+		static_cast<int>(mPaddlePos.x - thickness / 2),
+		static_cast<int>(mPaddlePos.y - thickness / 2),
+		thickness,
+		100
+	};
 }
