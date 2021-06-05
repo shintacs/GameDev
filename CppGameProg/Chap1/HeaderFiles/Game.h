@@ -28,8 +28,23 @@ private:
 	//ゲームの続行を指示する
 	bool mIsRunning;
 
+	//壁の厚さ
+	int thickness;
+
 	//パドルの位置
 	Vector2 mPaddlePos;
+	//パドルの高さ
+	int paddleH;
+	//パドルを動かす
+	int mPaddleDir;
+
 	//ボールの位置
 	Vector2 mBallPos;
+	//ボールの速度
+	Vector2 mBallVel;
+
+	//デルタタイム
+	Uint32 mTicksCount;
+
+	
 };
