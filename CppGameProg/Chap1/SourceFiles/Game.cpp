@@ -4,6 +4,7 @@ Game::Game()
 	:mWindow(nullptr)
 	, mIsRunning(true)
 	, mTicksCount(0)
+	, ball()
 {
 
 }
@@ -45,11 +46,21 @@ bool Game::Initialize()
 
 	mPaddlePos.x = 10.0f;
 	mPaddlePos.y = 768.0f / 2.0f;
-	mBallPos.x = 1024.0f / 2.0f;
-	mBallPos.y = 768.0f / 2.0f;
-	mBallVel.x = -200.0f;
-	mBallVel.y = 235.0f;
+	mPaddleRPos.x = 999.0f;
+	mPaddleRPos.y = mPaddlePos.y;
 
+	for (int i = 0; i < 3; i++)
+	{
+		mBallPos.x = 1024.0f / 2.0f;
+		mBallPos.y = 768.0f / 2.0f;
+		mBallVel.x = i*100 -200.0f;
+		mBallVel.y = i*50 + 235.0f;
+
+		ball.pos = mBallPos;
+		ball.vel = mBallVel;
+
+		balls.push_back(ball);
+	}
 }
 
 void Game::Shutdown()
@@ -100,6 +111,16 @@ void Game::ProcessInput()
 	{
 		mPaddleDir += 1;
 	}
+
+	mPaddleRDir = 0;
+	if (state[SDL_SCANCODE_I])
+	{
+		mPaddleRDir -= 1;
+	}
+	if (state[SDL_SCANCODE_K])
+	{
+		mPaddleRDir += 1;
+	}
 }
 
 void Game::GenerateOutput()
@@ -135,17 +156,17 @@ void Game::GenerateOutput()
 		thickness
 	};
 	//右の壁
-	SDL_Rect wallR{
+	/*SDL_Rect wallR{
 		1024 - thickness,
 		0,
 		thickness,
 		768
-	};
+	};*/
 
 	//長方形を描く
 	SDL_RenderFillRect(mRenderer, &wall);
 	SDL_RenderFillRect(mRenderer, &wallD);
-	SDL_RenderFillRect(mRenderer, &wallR);
+	//SDL_RenderFillRect(mRenderer, &wallR);
 
 	//ボールの設定。SDL_Rectは左上の座標で定義する
 	SDL_Rect ball{
@@ -160,15 +181,23 @@ void Game::GenerateOutput()
 
 	paddleH = 100;
 	//パドルの設定
-	SDL_Rect paddle{
+	SDL_Rect paddle1{
 		static_cast<int>(mPaddlePos.x),
 		static_cast<int>(mPaddlePos.y - paddleH / 2),
 		thickness,
 		paddleH
 	};
 
+	SDL_Rect paddle2{
+		static_cast<int>(mPaddleRPos.x),
+		static_cast<int>(mPaddleRPos.y - paddleH / 2),
+		thickness,
+		paddleH
+	};
+
 	//パドルを描く
-	SDL_RenderFillRect(mRenderer, &paddle);
+	SDL_RenderFillRect(mRenderer, &paddle1);
+	SDL_RenderFillRect(mRenderer, &paddle2);
 
 	//フロントバッファとバックバッファの交換
 	SDL_RenderPresent(mRenderer);
@@ -196,9 +225,14 @@ void Game::UpdateGame()
 		mPaddlePos.y += mPaddleDir * 300.0f * deltaTime;
 	}
 
+	if (mPaddleRDir != 0)
+	{
+		mPaddleRPos.y += mPaddleRDir * 300.0f * deltaTime;
+	}
+
 	//パドルのy座標に境界条件の制約を加える
 	if (mPaddleDir != 0)
-	{
+	{//左のパドルの境界条件
 		mPaddlePos.y += mPaddleDir * 300.0f * deltaTime;
 		//パドルが画面から出ないようにする
 		if (mPaddlePos.y < (paddleH / 2.0f + thickness))
@@ -211,6 +245,64 @@ void Game::UpdateGame()
 		}
 	}
 
+	if (mPaddleRDir != 0)
+	{//右のパドルの境界条件
+		mPaddleRPos.y += mPaddleRDir * 300.0f * deltaTime;
+		//パドルが画面から出ないようにする
+		if (mPaddleRPos.y < (paddleH / 2.0f + thickness))
+		{
+			mPaddleRPos.y = paddleH / 2.0f + thickness;
+		}
+		else if (mPaddleRPos.y > (768.0f - paddleH / 2.0f - thickness))
+		{
+			mPaddleRPos.y = 768.0f - paddleH / 2.0f - thickness;
+		}
+	}
+
+	for (int i = 0; i < 3; i++) {//各ボールの更新
+		mBallPos.x = balls[i].pos.x + balls[i].vel.x * deltaTime;
+		mBallPos.y = balls[i].pos.y + balls[i].vel.y * deltaTime;
+		mBallVel.x = balls[i].vel.x;
+		mBallVel.y = balls[i].vel.y;
+
+		//ボールの衝突後の挙動(ボールが上の壁と衝突し、しかもボールが上向きに動いているとき
+		if (balls[i].pos.y <= thickness && balls[i].vel.y < 0.0f)
+		{
+			mBallVel.y = balls[i].vel.y * -1;
+		}
+
+		//下の壁
+		if (balls[i].pos.y >= (768.0f - thickness) && balls[i].vel.y > 0.0f)
+		{
+			mBallVel.y = balls[i].vel.y * -1;
+		}
+
+		float diff = balls[i].pos.y - mPaddlePos.y;
+		float diffr = balls[i].pos.y - mPaddleRPos.y;
+		diff = (diff > 0.0f) ? diff : -diff;
+		diffr = (diffr > 0.0f) ? diffr : -diffr;
+
+		//パドルとの衝突
+		if (diff <= paddleH / 2.0f &&	//yの差が十分に小さく
+			balls[i].pos.x <= 25.0f && balls[i].pos.x >= 20.0f &&	//ボールが正しい位置にあり
+			balls[i].vel.x < 0.0f)	//ボールが左向きに動いていれば
+		{
+			mBallVel.x = balls[i].vel.x * -1.0f;
+		}
+
+		if (diffr <= paddleH / 2.0f &&	//yの差が十分に小さく
+			balls[i].pos.x <= 1004.0f && balls[i].pos.x >= 999.0f &&	//ボールが正しい位置にあり
+			balls[i].vel.x > 0.0f)	//ボールが右向きに動いていれば
+		{
+			mBallVel.x = balls[i].vel.x * -1.0f;
+		}
+		
+		ball.pos = mBallPos;
+		ball.vel = mBallVel;
+		balls[i] = ball;
+	}
+	
+	/*
 	//ボールの位置を速度に応じて動かす
 	mBallPos.x += mBallVel.x * deltaTime;
 	mBallPos.y += mBallVel.y * deltaTime;
@@ -232,7 +324,9 @@ void Game::UpdateGame()
 	}
 
 	float diff = mBallPos.y - mPaddlePos.y;
+	float diffr = mBallPos.y - mPaddleRPos.y;
 	diff = (diff > 0.0f) ? diff : -diff;
+	diffr = (diffr > 0.0f) ? diffr : -diffr;
 
 	//パドルとの衝突
 	if (diff <= paddleH / 2.0f &&	//yの差が十分に小さく
@@ -241,4 +335,12 @@ void Game::UpdateGame()
 	{
 		mBallVel.x *= -1.0f;
 	}
+
+	if (diffr <= paddleH / 2.0f &&	//yの差が十分に小さく
+		mBallPos.x <= 1004.0f && mBallPos.x >= 999.0f &&	//ボールが正しい位置にあり
+		mBallVel.x > 0.0f)	//ボールが右向きに動いていれば
+	{
+		mBallVel.x *= -1.0f;
+	}
+	*/
 }
