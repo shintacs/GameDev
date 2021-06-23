@@ -1,4 +1,5 @@
 #include "Game.h";
+#include <iostream>
 
 Game::Game()
 	:mWindow(nullptr)
@@ -53,8 +54,8 @@ bool Game::Initialize()
 	{
 		mBallPos.x = 1024.0f / 2.0f;
 		mBallPos.y = 768.0f / 2.0f;
-		mBallVel.x = i*100 -200.0f;
-		mBallVel.y = i*50 + 235.0f;
+		mBallVel.x = i*150 -200.0f;
+		mBallVel.y = i*45 + 235.0f;
 
 		ball.pos = mBallPos;
 		ball.vel = mBallVel;
@@ -169,15 +170,31 @@ void Game::GenerateOutput()
 	//SDL_RenderFillRect(mRenderer, &wallR);
 
 	//ボールの設定。SDL_Rectは左上の座標で定義する
-	SDL_Rect ball{
-		static_cast<int>(mBallPos.x - thickness / 2),
-		static_cast<int>(mBallPos.y - thickness / 2),
+	SDL_Rect ball1{
+		static_cast<int>(balls[0].pos.x - thickness / 2),
+		static_cast<int>(balls[0].pos.y - thickness / 2),
+		thickness,
+		thickness
+	};
+
+	SDL_Rect ball2{
+		static_cast<int>(balls[1].pos.x - thickness / 2),
+		static_cast<int>(balls[1].pos.y - thickness / 2),
+		thickness,
+		thickness
+	};
+
+	SDL_Rect ball3{
+		static_cast<int>(balls[2].pos.x - thickness / 2),
+		static_cast<int>(balls[2].pos.y - thickness / 2),
 		thickness,
 		thickness
 	};
 
 	//ボールを描く
-	SDL_RenderFillRect(mRenderer, &ball);
+	SDL_RenderFillRect(mRenderer, &ball1);
+	SDL_RenderFillRect(mRenderer, &ball2);
+	SDL_RenderFillRect(mRenderer, &ball3);
 
 	paddleH = 100;
 	//パドルの設定
