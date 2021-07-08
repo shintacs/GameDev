@@ -135,6 +135,40 @@ void Game::UnloadData()
 
 }
 
+SDL_Texture* Game::GetTexture(const std::string& fileName)
+{
+	SDL_Texture* tex = nullptr;
+	//テクスチャがすでにマップにあるか確認
+	auto iter = mTextures.find(fileName);
+	if (iter != mTextures.end())
+	{
+		tex = iter->second;
+	}
+	else
+	{
+		//ファイルからのロード
+		SDL_Surface* surf = IMG_Load(fileName.c_str());
+		if (!surf)
+		{
+			//テクスチャのロードに失敗
+			SDL_Log("テクスチャファイルのロードに失敗 %s", fileName.c_str());
+			return nullptr;
+		}
+
+		//サーフェスからテクスチャを作成
+		tex = SDL_CreateTextureFromSurface(mRenderer, surf);
+		SDL_FreeSurface(surf);
+		if (!tex)
+		{
+			SDL_Log("テクスチャへの変換に失敗 %s", fileName.c_str());
+			return nullptr;
+		}
+
+		mTextures.emplace(fileName.c_str(), tex);
+	}
+	return tex;
+}
+
 void Game::Shutdown()
 {
 	UnloadData();
