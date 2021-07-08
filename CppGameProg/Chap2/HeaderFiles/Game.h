@@ -15,6 +15,8 @@ public:
 	void AddActor(class Actor* actor);
 	void RemoveActor(class Actor* actor);
 
+	SDL_Texture* GetTexture(const std::string& fileName);
+
 private:
 	void ProcessInput();
 	void UpdateGame();
