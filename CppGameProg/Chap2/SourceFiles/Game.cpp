@@ -117,6 +117,33 @@ void Game::UpdateGame()
 	}
 }
 
+void Game::GenerateOutput()
+{
+	SDL_SetRenderDrawColor(mRenderer, 0, 0, 0, 255);
+	SDL_RenderClear(mRenderer);	//バックバッファのクリア
+
+	//全てのスプライトコンポーネントの描画
+	for (auto sprite : mSprites)
+	{
+		sprite->Draw(mRenderer);
+	}
+
+	SDL_RenderPresent(mRenderer);	//バッファの交換
+}
+
+void Game::LoadData()
+{
+	//プレイヤーの宇宙船を作成
+	mShip = new Ship(this);
+	mShip->SetPosition(Vector2(100.0f, 384.0f));
+	mShip->SetScale(1.5f);
+
+	//背景用のアクターの作成（サブクラスの必要なし）
+	Actor* temp = new Actor(this);
+	temp->SetPosition(Vector2(512.0f, 384.0f));
+	//
+}
+
 void Game::UnloadData()
 {
 	//アクターの消去
@@ -210,4 +237,29 @@ void Game::RemoveActor(Actor* actor)
 		std::iter_swap(iter, mActors.end() - 1);
 		mActors.pop_back();
 	}
+}
+
+void Game::AddSprite(SpriteComponent* sprite)
+{
+	//ソート済みの配列で挿入店を見つける
+	//自分よりも順序の高い最初の要素の位置
+	int myDrawOrder = sprite->GetDrawOrder();
+	auto iter = mSprites.begin();
+	for (;
+		iter != mSprites.end();
+		++iter)
+	{
+		if (myDrawOrder < (*iter)->GetDrawOrder())
+		{
+			break;
+		}
+	}
+
+	//イテレータの位置の前に要素を挿入する
+	mSprites.insert(iter, sprite);
+}
+
+void Game::RemoveSprite(SpriteComponent* sprite)
+{
+
 }
