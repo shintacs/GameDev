@@ -9,6 +9,8 @@ public:
 	AnimSpriteComponent(class Actor* owner, int drawOrder = 100);
 	//フレームごとにアニメーションを更新する
 	void Update(float deltaTime) override;
+	//キーボードの入力を受け取る
+	void ProcessKeyboard(const uint8_t* state);
 	//アニメーションに使うテクスチャを設定する
 	void SetAnimTextures(const std::vector<SDL_Texture*>& textures);
 	//アニメーションのFPSを設定/取得
@@ -21,4 +23,7 @@ private:
 	float mCurrFrame;
 	//アニメーションのフレームレート
 	float mAnimFPS;
+	//表示するアニメーションの範囲
+	float mStart;
+	float mEnd;
 };
